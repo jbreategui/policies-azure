@@ -19,10 +19,7 @@ resource "azurerm_cosmosdb_account" "this" {
   geo_location {
     location          = var.location
     failover_priority = 0
-  }
-
-  capabilities {
-    name = "EnableServerless"
+    zone_redundant    = false
   }
 
   backup {
@@ -51,4 +48,5 @@ resource "azurerm_cosmosdb_sql_container" "this" {
   account_name        = azurerm_cosmosdb_account.this.name
   database_name       = azurerm_cosmosdb_sql_database.this.name
   partition_key_paths = [var.partition_key_path]
+  throughput          = var.container_throughput
 }

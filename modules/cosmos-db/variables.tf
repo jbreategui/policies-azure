@@ -37,6 +37,12 @@ variable "partition_key_path" {
   default     = "/customerId"
 }
 
+variable "container_throughput" {
+  description = "RU/s aprovisionadas en el container. 400 = mínimo y entra dentro del free tier (1000 RU/s gratis)."
+  type        = number
+  default     = 400
+}
+
 variable "tags" {
   description = "Tags obligatorias."
   type        = map(string)
