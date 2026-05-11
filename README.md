@@ -17,6 +17,104 @@ Entregable: replicar el patrón del lab guiado (Terraform modular + 4 políticas
 
 > **Nota histórica:** el módulo originalmente era `cosmos-db/`, pero la suscripción del lab no tiene region access para Cosmos en `eastus` (la única región permitida por su Azure Policy). Se pivotó a Table Storage manteniendo el patrón event-driven.
 
+## Diagrama de arquitectura
+
+```mermaid
+flowchart LR
+    Dev["👤 Estudiante<br/>(terraform CLI)"]
+
+    subgraph Gate["Gate de políticas (local, antes de apply)"]
+        TF["terraform plan<br/>→ tfplan.json"]
+        OPA["conftest test<br/>6 reglas Rego"]
+        TF --> OPA
+    end
+
+    subgraph Azure["Azure · Subscription · RG rg-brr (eastus)"]
+        direction LR
+
+        subgraph SB["Service Bus (Basic)"]
+            NS["Namespace<br/>sb-jbreategui-dev-*"]
+            Q["Queue: orders"]
+            AR["Auth Rule<br/>Listen-only"]
+            NS --> Q
+            NS -.- AR
+        end
+
+        subgraph FN["Function App"]
+            SP["Service Plan Y1<br/>(Consumption)"]
+            FA["Linux Function App<br/>https_only + TLS 1.2<br/>System-assigned MI"]
+            SAR[("Storage Account<br/>runtime")]
+            SP --> FA
+            FA --> SAR
+        end
+
+        subgraph TS["Table Storage"]
+            SAD[("Storage Account<br/>data")]
+            T["Table: orders"]
+            SAD --> T
+        end
+    end
+
+    Dev --> Gate
+    OPA -->|✓ todas pasan| Azure
+
+    AR -. listen connstr .-> FA
+    Q ==>|trigger: mensaje| FA
+    FA ==>|write row| T
+
+    classDef compute fill:#e1f5ff,stroke:#0288d1
+    classDef messaging fill:#fff4e1,stroke:#f57c00
+    classDef data fill:#e8f5e9,stroke:#388e3c
+    classDef policy fill:#fce4ec,stroke:#c2185b
+    class FA,SP compute
+    class NS,Q,AR messaging
+    class SAR,SAD,T data
+    class TF,OPA policy
+```
+
+### Vista ASCII (fallback)
+
+```
+   estudiante
+      │
+      ▼
+  ┌─────────────────────────────────┐
+  │  terraform plan → conftest      │  ← gate: 6 políticas Rego
+  │  (NO apply hasta que pase)      │
+  └────────────┬────────────────────┘
+               │ ✓
+               ▼
+  ╔══════ Azure · RG rg-brr (eastus) ══════╗
+  ║                                         ║
+  ║  ┌─────────────┐  listen connstr        ║
+  ║  │ Service Bus │──────────────┐         ║
+  ║  │  (Basic)    │              │         ║
+  ║  │  queue:     │   trigger    ▼         ║
+  ║  │  orders     │========►┌────────────┐ ║
+  ║  └─────────────┘         │  Function  │ ║
+  ║                          │  App (Y1)  │ ║
+  ║                          │  https+MI  │ ║
+  ║                          └─────┬──────┘ ║
+  ║                                │write   ║
+  ║                                ▼        ║
+  ║                          ┌────────────┐ ║
+  ║                          │   Table    │ ║
+  ║                          │  Storage   │ ║
+  ║                          │  (orders)  │ ║
+  ║                          └────────────┘ ║
+  ╚═════════════════════════════════════════╝
+```
+
+### Componentes y su rol
+
+| Componente | Módulo Terraform | Rol |
+|------------|------------------|-----|
+| Service Bus namespace + queue | `modules/service-bus/` | Buffer de eventos. Auth rule con permiso `Listen` only para la Function. |
+| Function App (Linux, Y1) | `modules/function-app/` | Compute serverless. Consumo del queue, escritura a Table. HTTPS only, TLS 1.2, MI system-assigned. |
+| Storage Account "runtime" | `modules/function-app/` | Requerido por Azure Functions para state interno (host, leases, etc.). |
+| Storage Account "data" + Table | `modules/table-storage/` | Sink NoSQL de la app. SA separado para no mezclar runtime con datos de negocio. |
+| Conftest + 6 reglas Rego | `policy/` | Gate **local** antes de `apply`: tags, secure storage, SKU, location, https/tls compute, managed identity. |
+
 ## Políticas OPA — 4 base + 2 nuevas
 
 | # | Archivo | Origen | Qué valida |
