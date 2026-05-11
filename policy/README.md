@@ -11,7 +11,7 @@ Políticas Rego que se evalúan contra el plan de Terraform **antes** de aplicar
 | 3 | `azure_function_sku.rego` | **Adaptada** (reemplaza container_resources) | Service Plan limitado a `Y1` (Consumption) o `B1`. |
 | 4 | `azure_location.rego` | Base s03 | Regiones permitidas: `eastus`, `eastus2`, `westus2`. |
 | 5 | `azure_compute_https_tls.rego` | **Nueva propia** | Function App: `https_only=true`, TLS 1.2, FTPS deshabilitado. |
-| 6 | `azure_managed_identity.rego` | **Nueva propia** | Function App y Cosmos DB deben tener `SystemAssigned` Managed Identity. |
+| 6 | `azure_managed_identity.rego` | **Nueva propia** | Function App debe tener `SystemAssigned` Managed Identity. |
 
 ## Cómo correrlas
 

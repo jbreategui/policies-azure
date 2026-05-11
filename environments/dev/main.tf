@@ -32,16 +32,13 @@ module "service_bus" {
   tags                = local.tags
 }
 
-module "cosmos_db" {
-  source = "../../modules/cosmos-db"
+module "table_storage" {
+  source = "../../modules/table-storage"
 
   name                = local.name
   resource_group_name = data.azurerm_resource_group.this.name
   location            = var.location
-  database_name       = "appdb"
-  container_name      = "orders"
-  partition_key_path  = "/customerId"
-  free_tier_enabled   = var.cosmos_free_tier_enabled
+  table_name          = "orders"
   tags                = local.tags
 }
 
@@ -56,8 +53,8 @@ module "function_app" {
   servicebus_connection_string = module.service_bus.listener_connection_string
   servicebus_queue_name        = module.service_bus.queue_name
 
-  cosmos_endpoint      = module.cosmos_db.endpoint
-  cosmos_database_name = module.cosmos_db.database_name
+  table_connection_string = module.table_storage.primary_connection_string
+  table_name              = module.table_storage.table_name
 
   tags = local.tags
 }

@@ -11,9 +11,11 @@ Entregable: replicar el patrón del lab guiado (Terraform modular + 4 políticas
 |--------|-------------------|-----|-----------|
 | `service-bus/` | `azurerm_servicebus_namespace` + `azurerm_servicebus_queue` | Basic | El más barato que soporta queues. |
 | `function-app/` | `azurerm_service_plan` + `azurerm_linux_function_app` + `azurerm_storage_account` | Y1 (Consumption) | Pago por ejecución (~$0 idle). |
-| `cosmos-db/` | `azurerm_cosmosdb_account` + SQL DB + container | Free tier (1000 RU/s) | Free hasta 25 GB. |
+| `table-storage/` | `azurerm_storage_account` + `azurerm_storage_table` | Standard LRS | Free 5 GB en cuenta de estudiante; sink NoSQL barato. |
 
-**Flujo de la app:** mensaje en cola → Function lo procesa → escribe documento en Cosmos. La Function autentica vía **Managed Identity** y consume `endpoint` de Cosmos + `connection_string` (Listen-only) del Service Bus como app settings.
+**Flujo de la app:** mensaje en cola → Function lo procesa → escribe fila en Table Storage. La Function autentica vía **Managed Identity** y consume `connection_string` (Listen-only) del Service Bus y connection string del Storage como app settings.
+
+> **Nota histórica:** el módulo originalmente era `cosmos-db/`, pero la suscripción del lab no tiene region access para Cosmos en `eastus` (la única región permitida por su Azure Policy). Se pivotó a Table Storage manteniendo el patrón event-driven.
 
 ## Políticas OPA — 4 base + 2 nuevas
 
@@ -24,7 +26,7 @@ Entregable: replicar el patrón del lab guiado (Terraform modular + 4 políticas
 | 3 | `azure_function_sku.rego` | **adaptada** | Service Plan ∈ {Y1, B1}. |
 | 4 | `azure_location.rego` | base s03 | Sólo `eastus`/`eastus2`/`westus2`. |
 | 5 | `azure_compute_https_tls.rego` | **NUEVA** | Function App: HTTPS only + TLS 1.2 + FTPS off. |
-| 6 | `azure_managed_identity.rego` | **NUEVA** | Function App y Cosmos: `SystemAssigned` MI obligatoria. |
+| 6 | `azure_managed_identity.rego` | **NUEVA** | Function App: `SystemAssigned` MI obligatoria. |
 
 Detalle en [`policy/README.md`](policy/README.md).
 
@@ -42,7 +44,7 @@ clase4/
 │   │   ├── main.tf
 │   │   ├── variables.tf
 │   │   └── outputs.tf
-│   └── cosmos-db/
+│   └── table-storage/
 │       ├── main.tf
 │       ├── variables.tf
 │       └── outputs.tf
@@ -103,10 +105,10 @@ terraform destroy
 ## Decisiones de diseño
 
 1. **`data "azurerm_resource_group"`, no `resource`**: el RG lo asigna el docente, no se crea ni se borra desde Terraform.
-2. **`random_string` como sufijo** en `local.name`: garantiza unicidad global (Cosmos / Storage exigen nombres únicos en Azure).
+2. **`random_string` como sufijo** en `local.name`: garantiza unicidad global (Storage exige nombres únicos en Azure).
 3. **`listener_connection_string` (Listen-only)** en vez de la `RootManageSharedAccessKey`: principio de menor privilegio.
-4. **`free_tier_enabled = true` parametrizado**: si ya existe otra Cosmos con free tier en la suscripción, se desactiva sin editar el módulo.
-5. **Managed Identity en Function + Cosmos**: habilita migrar a auth sin secretos en el siguiente paso (asignar rol `Cosmos DB Built-in Data Contributor` al MI).
+4. **Storage Account separado para datos**: la Function tiene su propio SA de runtime; la tabla vive en un SA distinto (`table-storage/`) para no mezclar concerns.
+5. **Managed Identity en Function App**: habilita migrar a auth sin secretos asignando rol `Storage Table Data Contributor` al MI (en vez de usar el connection string actual).
 
 ## Verificación de las políticas
 

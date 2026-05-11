@@ -36,9 +36,3 @@ variable "tags" {
   type        = map(string)
   default     = {}
 }
-
-variable "cosmos_free_tier_enabled" {
-  description = "Habilitar free tier en Cosmos. Sólo una cuenta por suscripción puede tenerlo — si ya existe otra, poner false."
-  type        = bool
-  default     = true
-}

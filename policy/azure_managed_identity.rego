@@ -5,7 +5,6 @@ package main
 
 requires_identity := {
 	"azurerm_linux_function_app",
-	"azurerm_cosmosdb_account",
 }
 
 deny[msg] {

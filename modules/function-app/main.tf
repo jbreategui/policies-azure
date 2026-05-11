@@ -50,12 +50,12 @@ resource "azurerm_linux_function_app" "this" {
 
   app_settings = merge(
     {
-      "FUNCTIONS_WORKER_RUNTIME"     = "python"
-      "ServiceBusConnection"         = var.servicebus_connection_string
-      "ServiceBusQueueName"          = var.servicebus_queue_name
-      "CosmosDbEndpoint"             = var.cosmos_endpoint
-      "CosmosDbDatabase"             = var.cosmos_database_name
-      "AzureWebJobsDisableHomepage"  = "true"
+      "FUNCTIONS_WORKER_RUNTIME"    = "python"
+      "ServiceBusConnection"        = var.servicebus_connection_string
+      "ServiceBusQueueName"         = var.servicebus_queue_name
+      "TableStorageConnection"      = var.table_connection_string
+      "TableStorageTableName"       = var.table_name
+      "AzureWebJobsDisableHomepage" = "true"
     },
     var.extra_app_settings
   )

@@ -35,13 +35,14 @@ variable "servicebus_queue_name" {
   type        = string
 }
 
-variable "cosmos_endpoint" {
-  description = "Endpoint del Cosmos DB account (output del módulo cosmos-db)."
+variable "table_connection_string" {
+  description = "Connection string del Storage Account de datos (output del módulo table-storage, sensitive)."
   type        = string
+  sensitive   = true
 }
 
-variable "cosmos_database_name" {
-  description = "Nombre de la base SQL en Cosmos."
+variable "table_name" {
+  description = "Nombre de la tabla NoSQL donde la Function escribe."
   type        = string
 }
 

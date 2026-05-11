@@ -9,17 +9,17 @@ Wiring de los 3 módulos para el ambiente `dev`.
   │  Service Bus │ ───────────────────► │  Function App  │
   │   (queue)    │                      │  Y1 + MI       │
   └──────────────┘                      └────────┬───────┘
-                                                 │ endpoint + db
+                                                 │ table connstr + name
                                                  ▼
                                          ┌────────────────┐
-                                         │   Cosmos DB    │
-                                         │   free tier    │
+                                         │ Table Storage  │
+                                         │  (SA separado) │
                                          └────────────────┘
 ```
 
 - El **Service Bus** expone una `authorization_rule` con sólo permiso `Listen` que la Function recibe vía `app_settings.ServiceBusConnection` (sensitive).
 - La **Function App** se despliega en plan **Y1 (Consumption)** con `https_only = true`, TLS 1.2 y **system-assigned Managed Identity**.
-- El **Cosmos DB** entrega su `endpoint` y `database_name` a la Function. La asignación de RBAC `Cosmos DB Built-in Data Contributor` al MI se puede hacer manualmente o agregar al módulo si el RG lo permite.
+- **Table Storage** entrega su `connection_string` y `table_name` a la Function. Para migrar a auth sin secretos, asignar `Storage Table Data Contributor` al MI del Function App y reemplazar el app setting por uso del SDK con `DefaultAzureCredential`.
 
 ## Variables que debes ajustar en `terraform.tfvars`
 
@@ -27,7 +27,6 @@ Wiring de los 3 módulos para el ambiente `dev`.
 |----------|---------|
 | `resource_group_name` | RG asignado por el docente (debe existir, no se crea). |
 | `owner`, `cost_center` | Tags obligatorias por `azure_required_tags.rego`. |
-| `cosmos_free_tier_enabled` | Sólo **una** cuenta Cosmos por suscripción puede tener free tier. Si choca, poner `false`. |
 
 ## Flujo
 

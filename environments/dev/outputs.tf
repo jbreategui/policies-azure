@@ -18,7 +18,12 @@ output "function_app_principal_id" {
   value       = module.function_app.principal_id
 }
 
-output "cosmos_endpoint" {
-  description = "Endpoint del Cosmos account."
-  value       = module.cosmos_db.endpoint
+output "table_endpoint" {
+  description = "Endpoint HTTPS del servicio Table (sink de la Function)."
+  value       = module.table_storage.primary_table_endpoint
+}
+
+output "table_name" {
+  description = "Nombre de la tabla NoSQL."
+  value       = module.table_storage.table_name
 }
