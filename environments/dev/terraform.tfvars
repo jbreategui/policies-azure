@@ -1,6 +1,6 @@
 # Ajusta estos valores al RG asignado por el docente antes de `terraform apply`.
 resource_group_name = "rg-brr"
-location            = "eastus2"
+location            = "eastus"
 
 project     = "jbreategui"
 environment = "dev"
