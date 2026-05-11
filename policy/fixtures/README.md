@@ -49,3 +49,21 @@ El mensaje entre `[...]` te dice **qué política** disparó. Si el comando term
    ```powershell
    conftest verify --policy policy   # 17 tests, 17 passed
    ```
+
+## Atajo: correr toda la suite de una
+
+Hay scripts en `policy/run-all-tests.sh` (bash) y `policy/run-all-tests.ps1` (PowerShell) que ejecutan en orden:
+
+1. `conftest verify` — 17 tests unitarios.
+2. Una corrida de `conftest test` por cada `violates-*.json` (cada una termina en FAIL).
+3. Si existe `environments/dev/tfplan.json`, también lo valida (happy path).
+
+```bash
+# Linux / Git Bash:
+bash policy/run-all-tests.sh
+
+# Windows PowerShell:
+.\policy\run-all-tests.ps1
+```
+
+Una sola corrida, una sola captura.
