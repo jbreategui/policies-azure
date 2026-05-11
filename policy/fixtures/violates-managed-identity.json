@@ -1,0 +1,30 @@
+{
+  "format_version": "1.2",
+  "resource_changes": [
+    {
+      "address": "module.bad.azurerm_linux_function_app.no_mi",
+      "type": "azurerm_linux_function_app",
+      "name": "no_mi",
+      "change": {
+        "actions": ["create"],
+        "after": {
+          "name": "func-noMI",
+          "location": "eastus",
+          "https_only": true,
+          "site_config": [
+            {
+              "minimum_tls_version": "1.2",
+              "ftps_state": "Disabled"
+            }
+          ],
+          "tags": {
+            "Environment": "dev",
+            "ManagedBy": "Terraform",
+            "Owner": "jbreategui",
+            "CostCenter": "utec"
+          }
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "format_version": "1.2",
+  "resource_changes": [
+    {
+      "address": "module.bad.azurerm_service_plan.premium",
+      "type": "azurerm_service_plan",
+      "name": "premium",
+      "change": {
+        "actions": ["create"],
+        "after": {
+          "name": "asp-bad",
+          "location": "eastus",
+          "sku_name": "P1v2",
+          "tags": {
+            "Environment": "dev",
+            "ManagedBy": "Terraform",
+            "Owner": "jbreategui",
+            "CostCenter": "utec"
+          }
+        }
+      }
+    }
+  ]
+}

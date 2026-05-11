@@ -1,0 +1,69 @@
+{
+  "format_version": "1.2",
+  "resource_changes": [
+    {
+      "address": "module.bad.azurerm_storage_account.no_owner_tag",
+      "type": "azurerm_storage_account",
+      "name": "no_owner_tag",
+      "change": {
+        "actions": ["create"],
+        "after": {
+          "name": "stbadtags",
+          "location": "eastus",
+          "min_tls_version": "TLS1_0",
+          "https_traffic_only_enabled": false,
+          "allow_nested_items_to_be_public": true,
+          "tags": {
+            "Environment": "dev",
+            "ManagedBy": "Terraform",
+            "CostCenter": "utec"
+          }
+        }
+      }
+    },
+    {
+      "address": "module.bad.azurerm_service_plan.premium_wrong_region",
+      "type": "azurerm_service_plan",
+      "name": "premium_wrong_region",
+      "change": {
+        "actions": ["create"],
+        "after": {
+          "name": "asp-bad",
+          "location": "brazilsouth",
+          "sku_name": "P1v2",
+          "tags": {
+            "Environment": "dev",
+            "ManagedBy": "Terraform",
+            "Owner": "jbreategui",
+            "CostCenter": "utec"
+          }
+        }
+      }
+    },
+    {
+      "address": "module.bad.azurerm_linux_function_app.insecure_no_mi",
+      "type": "azurerm_linux_function_app",
+      "name": "insecure_no_mi",
+      "change": {
+        "actions": ["create"],
+        "after": {
+          "name": "func-bad",
+          "location": "eastus",
+          "https_only": false,
+          "site_config": [
+            {
+              "minimum_tls_version": "1.0",
+              "ftps_state": "AllAllowed"
+            }
+          ],
+          "tags": {
+            "Environment": "dev",
+            "ManagedBy": "Terraform",
+            "Owner": "jbreategui",
+            "CostCenter": "utec"
+          }
+        }
+      }
+    }
+  ]
+}

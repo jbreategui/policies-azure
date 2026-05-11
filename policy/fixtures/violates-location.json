@@ -1,0 +1,24 @@
+{
+  "format_version": "1.2",
+  "resource_changes": [
+    {
+      "address": "module.bad.azurerm_servicebus_namespace.wrong_region",
+      "type": "azurerm_servicebus_namespace",
+      "name": "wrong_region",
+      "change": {
+        "actions": ["create"],
+        "after": {
+          "name": "sb-bad",
+          "location": "brazilsouth",
+          "sku": "Basic",
+          "tags": {
+            "Environment": "dev",
+            "ManagedBy": "Terraform",
+            "Owner": "jbreategui",
+            "CostCenter": "utec"
+          }
+        }
+      }
+    }
+  ]
+}

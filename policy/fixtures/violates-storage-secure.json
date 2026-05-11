@@ -1,0 +1,26 @@
+{
+  "format_version": "1.2",
+  "resource_changes": [
+    {
+      "address": "module.bad.azurerm_storage_account.tls10_public",
+      "type": "azurerm_storage_account",
+      "name": "tls10_public",
+      "change": {
+        "actions": ["create"],
+        "after": {
+          "name": "stbadtls",
+          "location": "eastus",
+          "min_tls_version": "TLS1_0",
+          "https_traffic_only_enabled": false,
+          "allow_nested_items_to_be_public": true,
+          "tags": {
+            "Environment": "dev",
+            "ManagedBy": "Terraform",
+            "Owner": "jbreategui",
+            "CostCenter": "utec"
+          }
+        }
+      }
+    }
+  ]
+}

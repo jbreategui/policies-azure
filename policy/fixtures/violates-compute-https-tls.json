@@ -1,0 +1,33 @@
+{
+  "format_version": "1.2",
+  "resource_changes": [
+    {
+      "address": "module.bad.azurerm_linux_function_app.insecure",
+      "type": "azurerm_linux_function_app",
+      "name": "insecure",
+      "change": {
+        "actions": ["create"],
+        "after": {
+          "name": "func-bad",
+          "location": "eastus",
+          "https_only": false,
+          "identity": [
+            { "type": "SystemAssigned" }
+          ],
+          "site_config": [
+            {
+              "minimum_tls_version": "1.0",
+              "ftps_state": "AllAllowed"
+            }
+          ],
+          "tags": {
+            "Environment": "dev",
+            "ManagedBy": "Terraform",
+            "Owner": "jbreategui",
+            "CostCenter": "utec"
+          }
+        }
+      }
+    }
+  ]
+}
