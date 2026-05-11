@@ -15,6 +15,31 @@ Políticas Rego que se evalúan contra el plan de Terraform **antes** de aplicar
 
 ## Cómo correrlas
 
+Hay **dos modos** complementarios:
+
+### Modo 1 — Tests unitarios (rápido, no necesita Azure)
+
+`policy/policy_test.rego` contiene 17 tests (`test_*`) que ejercen cada regla con inputs sintéticos. No requiere `terraform plan` ni autenticación.
+
+```powershell
+# Desde la raíz del repo (clase4/)
+conftest verify --policy policy
+```
+
+Salida esperada:
+
+```
+17 tests, 17 passed, 0 warnings, 0 failures
+```
+
+Esto es la **evidencia formal** de que cada regla:
+- pasa cuando el input cumple (`test_X_passes` → `count(deny) == 0`)
+- falla cuando el input viola (`test_X_fails` → `count(deny) > 0`)
+
+### Modo 2 — Validación contra el plan real
+
+Una vez resueltos los tests unitarios, se valida el plan que Terraform va a aplicar:
+
 ```powershell
 # Desde environments/dev/
 terraform plan -out=tfplan
@@ -22,9 +47,9 @@ terraform show -json tfplan > tfplan.json
 conftest test --policy ../../policy tfplan.json
 ```
 
-Conftest devuelve `0` si todas las reglas pasan; cualquier `deny[...]` matcheado interrumpe el flujo.
+Conftest devuelve `0` si todas las reglas pasan; cualquier `deny[...]` matcheado interrumpe el flujo y bloquea el `apply`.
 
-## Verificación negativa (que las políticas SÍ rechazan lo que deben)
+## Verificación negativa manual (opcional)
 
 Para demostrar que las reglas funcionan, podés cambiar temporalmente en un módulo (ejemplos):
 
