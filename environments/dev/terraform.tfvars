@@ -12,5 +12,7 @@ tags = {
   Lab    = "tarea-clase4"
 }
 
-# Poner false si ya hay otra cuenta Cosmos con free tier en la suscripción.
-cosmos_free_tier_enabled = true
+# La suscripción del lab ya tiene otra cuenta Cosmos con free tier
+# (sólo se permite una por sub). false ⇒ el módulo activa serverless,
+# que es ~$0 idle y suficiente para esta tarea.
+cosmos_free_tier_enabled = false

@@ -22,6 +22,16 @@ resource "azurerm_cosmosdb_account" "this" {
     zone_redundant    = false
   }
 
+  # Modo de capacidad:
+  #  - free_tier_enabled = true  → provisioned (1000 RU/s gratis, 1 cuenta/sub).
+  #  - free_tier_enabled = false → serverless (sin throughput fijo, paga por request).
+  dynamic "capabilities" {
+    for_each = var.free_tier_enabled ? [] : ["EnableServerless"]
+    content {
+      name = capabilities.value
+    }
+  }
+
   backup {
     type                = "Periodic"
     interval_in_minutes = 240
@@ -48,5 +58,7 @@ resource "azurerm_cosmosdb_sql_container" "this" {
   account_name        = azurerm_cosmosdb_account.this.name
   database_name       = azurerm_cosmosdb_sql_database.this.name
   partition_key_paths = [var.partition_key_path]
-  throughput          = var.container_throughput
+
+  # En serverless no se puede declarar throughput; en provisioned/free tier sí.
+  throughput = var.free_tier_enabled ? var.container_throughput : null
 }
